@@ -1,33 +1,22 @@
 
+// Load utilities
+var util = require('./helpers');
+
 // Load BlueTooth module
 var noble = require('noble');
 
 // Interesting UUIDs
 var serviceUUIDs = [];
 
-// Utils
-var nice = function (device) {
-    var addr = device.address;
-    var name = device.advertisement.localName;
-    var svcs = device.advertisement.serviceUuids;
-    return { Address: addr, Name: name, Services: svcs };
-};
-var niceSvc = function (service) {
-    var id = service.uuid;
-    var name = service.name;
-    var type = service.type;
-    return { UUID: id, Name: name, Type: type };
-};
-
 // Create discover callback
 var discover = function (device) {
-    console.log('Found device: ', nice(device));
+    console.log('Found device: ', util.niceDev(device));
     device.connect(function(error) {
         if (error) {
             console.log('Error while connecting! ', error);
             return;
         }
-        console.log('Connected to device: ', nice(device).Name);
+        console.log('Connected to device: ', util.niceDev(device).Name);
         device.discoverServices(serviceUUIDs, function(error, services) {
             if(error) {
                 console.log('Error while discovering! ', error);
@@ -37,7 +26,7 @@ var discover = function (device) {
             console.log('Discovered ', svcCount, ' services!');
             for (var i = 0; i < svcCount; i++) {
                 var service = services[i];
-                console.log('Service ', i, ': ', niceSvc(service));
+                console.log('Service ', i, ': ', util.niceSvc(service));
             }
         });
     });
