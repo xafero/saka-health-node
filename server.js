@@ -6,7 +6,8 @@ var util = require('./helpers');
 var noble = require('noble');
 
 // Interesting UUIDs
-var serviceUUIDs = [];
+var heartRateId = '180d';
+var serviceUUIDs = [ heartRateId ];
 
 // Create discover callback
 var discover = function (device) {
@@ -27,8 +28,50 @@ var discover = function (device) {
             for (var i = 0; i < svcCount; i++) {
                 var service = services[i];
                 console.log('Service ', i, ': ', util.niceSvc(service));
+                service.discoverIncludedServices();
+                service.discoverCharacteristics();
+                // Wait for includes
+                service.once('includedServicesDiscover', function(includedServiceUuids) {
+                    for (var i=0; i < includedServiceUuids; i++) {
+                        var isu = includedServiceUuids[i];
+                        console.log('Found included service: ', isu);
+                    }
+                });
+                // Wait for characters
+                service.once('characteristicsDiscover', function(characteristics) {
+                    for (var i=0; i < characteristics.length; i++) {
+                        var char = characteristics[i];
+                        console.log('Found characteristic: ', util.niceChar(char));
+                        char.discoverDescriptors(function(error, descriptors) {
+                            if (error) {
+                                console.log('Error while descripting! ', error);
+                                return;
+                            }
+                            for (var i=0; i < descriptors.length; i++) {
+                                var desc = descriptors[i];
+                                console.log('Found descriptor: ', util.niceDesc(desc));
+                                desc.readValue(function (error, data) {
+                                    if (error) {
+                                        console.log('Error while reading! ', error);
+                                        return;
+                                    }
+                                    console.log('Descriptor value: ', data);
+                                });
+                            }
+                        });
+                        char.notify(true, function(error) {
+                            if (error) {
+                                console.log('Error while notifying! ', error);
+                            }
+                        });
+                        char.on('data', function(data, isNotification) {
+                            console.log({ value: data, notify: isNotification });
+                        });
+                    }
+                });
             }
         });
+        // TODO: Maybe - peripheral.disconnect([callback(error)])
     });
 };
 
@@ -43,6 +86,7 @@ var states = function (state) {
         // Start scanning
         var allowDuplicates = false;
         noble.startScanning(serviceUUIDs, allowDuplicates);
+        // TODO: Maybe - noble.stopScanning()
     }
 };
 
