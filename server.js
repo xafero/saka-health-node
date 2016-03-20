@@ -12,7 +12,7 @@ var serviceUUIDs = [ heartRateId ];
 // Create value callback
 var onHeartRate = function(buffer) {
     // TODO: Handle that!
-    console.log('input: ', buffer);
+    console.log('h ', buffer.toString('hex'));
 };
 
 // Create discover callback
