@@ -13,6 +13,21 @@ module.exports = {
         var name = service.name;
         var type = service.type;
         return {UUID: id, Name: name, Type: type};
+    },
+
+    niceChar: function (char) {
+        var id = char.uuid;
+        var name = char.name;
+        var type = char.type;
+        var prop = char.properties;
+        return {UUID: id, Name: name, Type: type, Props: prop};
+    },
+
+    niceDesc: function (desc) {
+        var id = desc.uuid;
+        var name = desc.name;
+        var type = desc.type;
+        return {UUID: id, Name: name, Type: type};
     }
 
 };
