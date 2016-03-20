@@ -1,7 +1,7 @@
 {
   "name": "saka-health-node",
   "version": "0.0.1",
-  "description": "A health UDP central for medical sensors",
+  "description": "A health central for medical sensors",
   "main": "server.js",
   "dependencies": {
     "noble": "~1.3.0"
@@ -11,5 +11,5 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "xafero",
-  "license": "AGPL"
+  "license": "AGPLv3"
 }

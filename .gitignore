@@ -34,5 +34,4 @@ jspm_packages
 .node_repl_history
 
 # Optional WebStorm
-.idea
-
+.idea/
