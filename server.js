@@ -9,6 +9,12 @@ var noble = require('noble');
 var heartRateId = '180d';
 var serviceUUIDs = [ heartRateId ];
 
+// Create value callback
+var onHeartRate = function(buffer) {
+    // TODO: Handle that!
+    console.log('input: ', buffer);
+};
+
 // Create discover callback
 var discover = function (device) {
     console.log('Found device: ', util.niceDev(device));
@@ -65,7 +71,7 @@ var discover = function (device) {
                             }
                         });
                         char.on('data', function(data, isNotification) {
-                            console.log({ value: data, notify: isNotification });
+                            onHeartRate(data);
                         });
                     }
                 });
