@@ -5,9 +5,20 @@ var util = require('./helpers');
 // Load BlueTooth module
 var noble = require('noble');
 
+// Load OS and UDP module
+var os = require('os');
+var dgram = require('dgram');
+
 // Interesting UUIDs
 var heartRateId = '180d';
 var serviceUUIDs = [ heartRateId ];
+
+// Set UDP options
+var port = 8989;
+var host = '127.0.0.1';
+
+// Create UDP client
+var client = dgram.createSocket('udp4');
 
 // Create value callback
 var onHeartRate = function(buff) {
@@ -23,11 +34,17 @@ var onHeartRate = function(buff) {
         rr = buff.readUInt16LE(4);
     }
     // Send it over network
-    console.log(flags,' - ',rate,' - ',joule,' - ',rr);
-
-
-
-    // TODO...
+    var nl = os.EOL;
+    var sep = ',';
+    var msg = flags + sep + rate + sep + joule + sep + rr;
+    var data = new Buffer(msg + nl);
+    client.send(data, 0, data.length, port, host, function(error, bytes) {
+        if (error) {
+            console.log('Error while sending! ', error);
+            return;
+        }
+        console.log(' SENT to '+host+':'+port+' => '+msg);
+    });
 };
 
 // Create discover callback
