@@ -10,9 +10,24 @@ var heartRateId = '180d';
 var serviceUUIDs = [ heartRateId ];
 
 // Create value callback
-var onHeartRate = function(buffer) {
-    // TODO: Handle that!
-    console.log('h ', buffer.toString('hex'));
+var onHeartRate = function(buff) {
+    // Decrypt mystic buffer
+    var flags = buff.readUInt8(0);
+    var rate = buff.readUInt8(1);
+    var joule = -1;
+    if (buff.length > 2) {
+        joule = buff.readUInt16LE(2);
+    }
+    var rr = -1;
+    if (buff.length > 4) {
+        rr = buff.readUInt16LE(4);
+    }
+    // Send it over network
+    console.log(flags,' - ',rate,' - ',joule,' - ',rr);
+
+
+
+    // TODO...
 };
 
 // Create discover callback
@@ -23,7 +38,7 @@ var discover = function (device) {
             console.log('Error while connecting! ', error);
             return;
         }
-        console.log('Connected to device: ', util.niceDev(device).Name);
+        console.log('Connected to device: ', util.niceDev(device).Address);
         device.discoverServices(serviceUUIDs, function(error, services) {
             if(error) {
                 console.log('Error while discovering! ', error);
@@ -61,7 +76,7 @@ var discover = function (device) {
                                         console.log('Error while reading! ', error);
                                         return;
                                     }
-                                    console.log('Descriptor value: ', data);
+                                    console.log('Descriptor value: ', data.toString('hex'));
                                 });
                             }
                         });
