@@ -15,6 +15,7 @@ var serviceUUIDs = [ heartRateId ];
 
 // Set UDP options
 var port = 8989;
+var sPort = 8988;
 var host = '127.0.0.1';
 
 // Create UDP client
@@ -47,9 +48,37 @@ var onHeartRate = function(buff) {
     });
 };
 
+// Create scale callback
+var onScaleWeight = function(buff) {
+    // Decrypt mystic buffer
+    var weightKg = buff.readUInt16BE(4) / 10.0;
+    // Send it over network
+    var nl = os.EOL;
+    var msg = weightKg;
+    var data = new Buffer(msg + nl);
+    client.send(data, 0, data.length, sPort, host, function(error, bytes) {
+        if (error) {
+            console.log('Error while sending!', error);
+            return;
+        }
+        console.log(' SENT to '+host+':'+sPort+' => '+msg);
+    });
+};
+
 // Create discover callback
 var discover = function (device) {
-    console.log('Found device: ', util.niceDev(device));
+    var dev = util.niceDev(device);
+    // Special case for this scale
+    if (dev.Name === 'YoHealth') {
+        onScaleWeight(device.advertisement.manufacturerData);
+        return;
+    }
+    // Ignore crappy devices without name and services!
+    if (!dev.Name || dev.Services.length == 0) {
+        return;
+    }
+    // Handle normal devices
+    console.log('Found device: ', dev);
     device.connect(function(error) {
         if (error) {
             console.log('Error while connecting! ', error);
@@ -122,8 +151,12 @@ var states = function (state) {
     if (state == 'poweredOn') {
         console.log('Trying to find devices...');
         // Start scanning
-        var allowDuplicates = false;
-        noble.startScanning(serviceUUIDs, allowDuplicates);
+        var pollMs = 100;
+        setInterval(function() {
+            var allowDuplicates = true;
+            var uuids = [];
+            noble.startScanning(uuids, allowDuplicates);
+        }, pollMs);
         // TODO: Maybe - noble.stopScanning()
     }
 };
