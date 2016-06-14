@@ -14,9 +14,9 @@ var heartRateId = '180d';
 var serviceUUIDs = [ heartRateId ];
 
 // Set UDP options
-var port = 8989;
-var sPort = 8988;
-var host = '127.0.0.1';
+var heartPort = 8989;
+var scalePort = 8988;
+var host = '169.254.134.42';
 
 // Create UDP client
 var client = dgram.createSocket('udp4');
@@ -39,12 +39,12 @@ var onHeartRate = function(buff) {
     var sep = ',';
     var msg = flags + sep + rate + sep + joule + sep + rr;
     var data = new Buffer(msg + nl);
-    client.send(data, 0, data.length, port, host, function(error, bytes) {
+    client.send(data, 0, data.length, heartPort, host, function(error, bytes) {
         if (error) {
             console.log('Error while sending! ', error);
             return;
         }
-        console.log(' SENT to '+host+':'+port+' => '+msg);
+        console.log(' SENT to '+host+':'+heartPort+' => '+msg);
     });
 };
 
@@ -56,12 +56,12 @@ var onScaleWeight = function(buff) {
     var nl = os.EOL;
     var msg = weightKg;
     var data = new Buffer(msg + nl);
-    client.send(data, 0, data.length, sPort, host, function(error, bytes) {
+    client.send(data, 0, data.length, scalePort, host, function(error, bytes) {
         if (error) {
             console.log('Error while sending!', error);
             return;
         }
-        console.log(' SENT to '+host+':'+sPort+' => '+msg);
+        console.log(' SENT to '+host+':'+scalePort+' => '+msg);
     });
 };
 
